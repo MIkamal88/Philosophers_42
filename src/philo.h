@@ -76,4 +76,5 @@ t_bool	create_forks(t_table *table);
 //	Error handling
 void	exit_err(char *err);
 void	err_hndl(char *err, t_table *table);
+void	free_table(t_table *table);
 #endif

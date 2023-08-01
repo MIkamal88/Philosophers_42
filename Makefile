@@ -12,18 +12,24 @@
 
 NAME = philo
 
-SRC = ./main.c ./error.c ./init.c ./input.c ./input_utils.c ./utils.c
+SRC_DIR = ./src/
+SRC = $(SRC_DIR)main.c\
+			$(SRC_DIR)error.c\
+			$(SRC_DIR)init.c\
+			$(SRC_DIR)input.c\
+			$(SRC_DIR)input_utils.c\
+			$(SRC_DIR)utils.c\
 
-OBJ_PATH = ./ofiles/
-OBJ = $(addprefix $(OBJ_PATH), $(SRC:.c=.o))
+OBJ_DIR = ./ofiles/
+OBJ = $(patsubst $(SRC_DIR)%.c, $(OBJ_DIR)%.o, $(SRC))
 
-CC = gcc -g
+CC = gcc -g -fsanitize=address
 CF = -Wall -Wextra -Werror -pthread
 RM = rm -rf
 
-$(OBJ_PATH)%.o: %.c
-	mkdir -p $(OBJ_PATH)
-	$(CC) $(CF) -c $< -o $@
+
+
+all : $(NAME)
 
 $(NAME): ANNOUNCE $(OBJ)
 	@printf "$(GR)Objects ready!$(RC)\n"
@@ -31,7 +37,9 @@ $(NAME): ANNOUNCE $(OBJ)
 	$(CC) $(CF) $(OBJ) -o $(NAME)
 	@printf "$(GR)Done!$(RC)\n\n"
 
-all : $(NAME)
+$(OBJ_DIR)%.o: $(SRC_DIR)%.c
+	mkdir -p $(OBJ_DIR)
+	$(CC) $(CF) -c $< -o $@
 
 ANNOUNCE:
 	@printf "$(YE)Generating .o Files...$(RC)\n"
@@ -39,7 +47,7 @@ ANNOUNCE:
 re :	fclean all
 
 clean :
-	@$(RM) $(OBJ) $(OBJ_PATH)
+	@$(RM) $(OBJ) $(OBJ_DIR)
 	@printf "$(RE)Object files removed!$(RC)\n"
 
 fclean:	clean

@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "philo.h"
-#include <bits/pthreadtypes.h>
 
 //Arguments: argc 5 or 6
 //exec - num_philo - time_to_die - time_to_eat - time_to_sleep - num_meals(OPT)

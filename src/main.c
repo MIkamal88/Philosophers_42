@@ -11,8 +11,6 @@
 /* ************************************************************************** */
 
 #include "philo.h"
-#include <pthread.h>
-#include <unistd.h>
 
 //Arguments:
 //num_philo - time_to_die - time_to_eat - time_to_sleep - num_meals
@@ -23,9 +21,9 @@ static t_table	*set_table(int argc, char **argv)
 	table = malloc(sizeof(t_table));
 	table->args = fill_args(argc, argv);
 	if (create_philos(table) == FALSE)
-		err_hndl("Error Creating Philosophers.\n", table);
+		err_hndl("Error Setting Philosophers.\n", table);
 	if (create_forks(table) == FALSE)
-		err_hndl("Error Creating Forks.\n", table);
+		err_hndl("Error Setting Forks.\n", table);
 	return (table);
 }
 
@@ -40,4 +38,5 @@ int	main(int argc, char **argv)
 	usleep(1000000);
 	printf("Current Time = %ld\nTime = %ld\n", get_time(), table->t0);
 	printf("Philosophers = %d\n", table->args->philo_n);
+	free_table(table);
 }
