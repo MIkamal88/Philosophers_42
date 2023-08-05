@@ -19,6 +19,12 @@
 # include <pthread.h>
 # include <sys/time.h>
 
+# define EAT "is eating."
+# define SLEEP "is sleeping."
+# define THINK "is thinking."
+# define FORK "has taken a fork."
+# define DIED "has died."
+
 typedef enum e_bool
 {
 	FALSE,
@@ -69,9 +75,12 @@ long	ft_atoi(const char *str);
 
 //  Initialization
 t_args	*fill_args(int argc, char **argv);
-long	get_time(void);
 t_bool	create_philos(t_table *table);
 t_bool	create_forks(t_table *table);
+
+//	Time
+long	get_time(void);
+long	time_diff(long time);
 
 //	Error handling
 void	exit_err(char *err);
