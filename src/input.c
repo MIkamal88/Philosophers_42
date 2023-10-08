@@ -46,17 +46,6 @@ static t_bool	philo_check(char **argv)
 	return (TRUE);
 }
 
-static t_bool	meal_check(char **argv)
-{
-	int	num_meals;
-
-	if (argv[5])
-		num_meals = ft_atoi(argv[5]);
-	if (!num_meals)
-		return (FALSE);
-	return (TRUE);
-}
-
 static t_bool	time_check(char **argv)
 {
 	int	time;
@@ -83,8 +72,6 @@ t_bool	correct_input(int argc, char **argv)
 		printf("Arguments are not in correct format.\n");
 	else if (!philo_check(argv))
 		printf("Invalid number of philosphers.\n");
-	else if (!meal_check(argv))
-		printf("Number of meals must be one or more.\n");
 	else if (!time_check(argv))
 		printf("Timestamp can't be negative value or null.\n");
 	else

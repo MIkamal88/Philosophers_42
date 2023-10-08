@@ -44,7 +44,7 @@ t_bool	create_philos(t_table *table)
 	int	i;
 	int	j;
 
-	table->philos = malloc(sizeof(t_philo) * (table->args->philo_n));
+	table->philos = malloc(sizeof(t_philo) * (table->args->philo_n + 1));
 	if (table->philos == NULL)
 		return (FALSE);
 	i = 0;

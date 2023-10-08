@@ -28,3 +28,35 @@ long	time_diff(long time)
 		return (get_time() - time);
 	return (0);
 }
+
+t_bool	ft_isdigit(char c)
+{
+	if ((c >= '0' && c <= '9') || c == ' ')
+		return (TRUE);
+	return (FALSE);
+}
+
+t_bool	ft_issign(char c)
+{
+	if (c == '+' || c == '-')
+		return (TRUE);
+	return (FALSE);
+}
+
+int	ft_atoi(const char *str)
+{
+	int			i;
+	long int	n;
+
+	i = 0;
+	n = 0;
+	while (str[i] >= '0' && str[i] <= '9')
+	{
+		n = n * 10 + str[i] - '0';
+		i++;
+	}
+	if (n < 0 || ((str[i] < '0' || str[i] > '9') && str[i] != '\0')
+		|| n > INT_MAX)
+		return (0);
+	return (n);
+}

@@ -19,11 +19,21 @@
 # include <pthread.h>
 # include <sys/time.h>
 
-# define EAT "is eating."
-# define SLEEP "is sleeping."
-# define THINK "is thinking."
-# define FORK "has taken a fork."
-# define DIED "has died."
+# define INT_MAX 2147483647
+
+# define EAT "is eating"
+# define SLEEP "is sleeping"
+# define THINK "is thinking"
+# define FORK "has taken a fork"
+# define DIED "has died"
+
+//Colors
+# define RESET "\e[0m"
+# define GREEN "\e[0;32m"
+# define G_BLUE "\e[0;38;5;24m"
+# define B_BLUE "\e[1;34m"
+# define G_CYAN "\e[0;38;5;44m"
+# define RED "\033[31;1m"
 
 typedef enum e_bool
 {
@@ -58,7 +68,7 @@ typedef struct s_philo
 typedef struct s_table
 {
 	int				n_thread;
-	t_bool			dead_philo;
+	int				dead_philo;
 	long			t0;
 	t_args			*args;
 	t_philo			*philos;
@@ -71,7 +81,7 @@ typedef struct s_table
 t_bool	correct_input(int argc, char **argv);
 t_bool	ft_isdigit(char c);
 t_bool	ft_issign(char c);
-long	ft_atoi(const char *str);
+int		ft_atoi(const char *str);
 
 //  Initialization
 t_args	*fill_args(int argc, char **argv);
@@ -81,6 +91,25 @@ t_bool	create_forks(t_table *table);
 //	Time
 long	get_time(void);
 long	time_diff(long time);
+void	exec_action(long time);
+
+//  Actions
+t_bool	drop_forks(t_table *table, int i);
+t_bool	eating_philo(t_table *table, int i);
+t_bool	thinking_philo(t_table *table, int i);
+t_bool	sleeping_philo(t_table *table, int i);
+t_bool	dead_philo(t_table *table, int *i);
+
+// Threads
+t_bool	thread_join(t_table *table);
+t_bool	thread_create(t_table *table);
+t_bool	thread_destroy(t_table *table);
+
+//	Cycle
+void	*cycle(void *args);
+t_bool	cycle_execute(t_table *table, int i);
+void	*checker(void *args);
+t_bool	printing_philo(t_table *table, int ph_id, char *color, char *status);
 
 //	Error handling
 void	exit_err(char *err);
