@@ -5,60 +5,54 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: m_kamal <m_kamal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/07 19:06:25 by m_kamal           #+#    #+#             */
-/*   Updated: 2023/10/07 19:06:25 by m_kamal          ###   ########.fr       */
+/*   Created: 2023/10/16 21:01:22 by m_kamal           #+#    #+#             */
+/*   Updated: 2023/10/16 21:01:22 by m_kamal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
+static t_bool	thread_join(t_table *table)
+{
+	int	i;
+
+	i = -1;
+	while (++i < table->args->philo_n)
+		if (pthread_join(table->philos[i]->thread_id, NULL))
+			return (FALSE);
+	if (pthread_join(table->reaper, NULL))
+		return (FALSE);
+	return (TRUE);
+}
+
 t_bool	thread_create(t_table *table)
 {
 	int	i;
 
-	i = 0;
-	while (i < table->args->philo_n)
-	{
-		table->n_thread = i;
-		if (pthread_create(&table->philos[i].thread,
-				NULL, &cycle, (void *) table) != 0)
+	i = -1;
+	while (++i < table->args->philo_n)
+		if (pthread_create(&table->philos[i]->thread_id,
+				NULL, cycle, table->philos[i]))
 			return (FALSE);
-		i++;
-		usleep(1000);
-	}
-	if (pthread_create(&table->maestro, NULL, &checker, (void *) table) != 0)
+	if (pthread_create(&table->reaper, NULL, reap, table))
 		return (FALSE);
 	if (thread_join(table) == FALSE)
 		return (FALSE);
 	return (TRUE);
 }
 
-t_bool	thread_join(t_table *table)
+t_bool	table_destroy(t_table *table)
 {
 	int	i;
 
-	i = 0;
-	while (i < table->args->philo_n)
-	{
-		if (pthread_join(table->philos[i].thread, NULL) != 0)
-			return (FALSE);
-		i++;
-	}
-	if (pthread_join(table->maestro, NULL) != 0)
-		return (FALSE);
-	return (TRUE);
-}
-
-t_bool	thread_destroy(t_table *table)
-{
-	int	i;
-
-	i = 0;
-	while (i < table->args->philo_n)
+	i = -1;
+	while (++i < table->args->philo_n)
 	{
 		pthread_mutex_destroy(&table->forks[i]);
-		i++;
+		pthread_mutex_destroy(&table->philos[i]->sated_lock);
+		free(table->philos[i]);
 	}
-	pthread_mutex_destroy(&table->write);
+	pthread_mutex_destroy(&table->write_lock);
+	pthread_mutex_destroy(&table->finish_lock);
 	return (TRUE);
 }

@@ -5,89 +5,98 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: m_kamal <m_kamal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/08/12 08:49:38 by m_kamal           #+#    #+#             */
-/*   Updated: 2023/08/12 09:38:38 by m_kamal          ###   ########.fr       */
+/*   Created: 2023/10/16 16:25:52 by m_kamal           #+#    #+#             */
+/*   Updated: 2023/10/16 16:25:52 by m_kamal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	*cycle(void *args)
+static t_bool	done_eating(t_table *table)
+{
+	int		i;
+	t_bool	sated;
+
+	i = -1;
+	if (table->args->meals_n == -1)
+		return (FALSE);
+	while (++i < table->args->philo_n)
+	{
+		pthread_mutex_lock(&table->philos[i]->sated_lock);
+		sated = table->philos[i]->sated;
+		pthread_mutex_unlock(&table->philos[i]->sated_lock);
+		if (!sated)
+			return (FALSE);
+	}
+	pthread_mutex_lock(&table->finish_lock);
+	table->finish = TRUE;
+	pthread_mutex_unlock(&table->finish_lock);
+	return (TRUE);
+}
+
+void	*reap(void *table_ptr)
 {
 	t_table	*table;
-	int		i;
+	t_bool	finish;
 
-	table = (t_table *)args;
-	i = table->n_thread;
-	if (table->args->meals_n > 0)
-		while (table->args->meals_n > table->philos[i].meal_count
-			&& table->dead_philo == FALSE)
-			cycle_execute(table, i);
-	else
+	table = (t_table *)table_ptr;
+	pthread_mutex_lock(&table->finish_lock);
+	finish = table->finish;
+	pthread_mutex_unlock(&table->finish_lock);
+	if (finish)
+		return (NULL);
+	while (done_eating(table) == FALSE)
 	{
-		while (table->dead_philo == FALSE)
-			if (cycle_execute(table, i) == FALSE)
-				break ;
+		if (dead_philo(table) == TRUE)
+			break ;
+		usleep(1000);
 	}
 	return (NULL);
 }
 
-t_bool	cycle_execute(t_table *table, int i)
+static t_bool	cycle_execute(t_philo *philo)
 {
-	if (eating_philo(table, i) == FALSE)
+	if (eating_philo(philo) == FALSE)
 		return (FALSE);
-	if (table->philos[i].meal_count != table->args->meals_n)
-	{
-		if (sleeping_philo(table, i) == FALSE)
-			return (FALSE);
-		if (thinking_philo(table, i) == FALSE)
-			return (FALSE);
-	}
+	if (sleeping_philo(philo) == FALSE)
+		return (FALSE);
+	if (thinking_philo(philo) == FALSE)
+		return (FALSE);
 	return (TRUE);
 }
 
-void	*checker(void *args)
+static t_bool	is_meal_over(t_philo *philo)
 {
-	t_table	*table;
-	int		i;
+	t_bool	finish;
+	t_bool	sated;
 
-	table = (t_table *)args;
-	i = 0;
-	if (table->args->meals_n > 0)
+	pthread_mutex_lock(philo->finish_lock);
+	finish = *philo->finish;
+	pthread_mutex_unlock(philo->finish_lock);
+	if (finish)
+		return (TRUE);
+	pthread_mutex_lock(&philo->sated_lock);
+	sated = philo->sated;
+	pthread_mutex_unlock(&philo->sated_lock);
+	if (sated)
+		return (TRUE);
+	return (FALSE);
+}
+
+void	*cycle(void *philo_ptr)
+{
+	t_philo	*philo;
+
+	philo = (t_philo *)philo_ptr;
+	if (philo->id % 2 == 0)
+		usleep(1000);
+	if (philo->args.philo_n == 1)
 	{
-		while (table->args->meals_n > table->philos[i].meal_count
-			&& table->dead_philo == FALSE)
-		{
-			if (dead_philo(table, &i) == TRUE)
-				break ;
-		}
+		printing_philo(philo, YELLOW, FORK);
+		usleep(philo->args.die_t * 1000);
+		return (NULL);
 	}
-	else
-	{
-		while (table->dead_philo == FALSE)
-		{
-			if (dead_philo(table, &i) == TRUE)
-				break ;
-		}
-	}
+	while (!is_meal_over(philo))
+		cycle_execute(philo);
 	return (NULL);
-}
-
-t_bool	printing_philo(t_table *table, int ph_id, char *color, char *status)
-{
-	long	now_t;
-
-	now_t = time_diff(table->t0);
-	if (table->dead_philo == TRUE)
-		return (FALSE);
-	pthread_mutex_lock(&table->write);
-	if (table->dead_philo == TRUE)
-	{
-		pthread_mutex_unlock(&table->write);
-		return (FALSE);
-	}
-	else
-		printf("%s%-10ld %-3d %-30s%s\n", color, now_t, ph_id, status, RESET);
-	pthread_mutex_unlock(&table->write);
-	return (TRUE);
 }

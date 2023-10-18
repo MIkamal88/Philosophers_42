@@ -19,14 +19,15 @@ SRC = $(SRC_DIR)main.c\
 			$(SRC_DIR)input.c\
 			$(SRC_DIR)utils.c\
 			$(SRC_DIR)actions.c\
+			$(SRC_DIR)forks.c\
 			$(SRC_DIR)threads.c\
 			$(SRC_DIR)cycle.c\
 
 OBJ_DIR = ./ofiles/
 OBJ = $(patsubst $(SRC_DIR)%.c, $(OBJ_DIR)%.o, $(SRC))
 
-CC = gcc #-fsanitize=address
-CF = -Wall -Wextra -Werror -pthread -g
+CC = gcc #-fsanitize=thread
+CF = -Wall -Wextra -Werror -pthread #-g
 RM = rm -rf
 
 
@@ -57,10 +58,11 @@ fclean:	clean
 	@printf "$(RE)Executable removed!$(RC)\n"
 
 leak :			all
-	valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all ./$(NAME) 3 1500 400 300 4
+	valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all ./$(NAME) 3 310 200 150 4
 
 helgrind:		all
-	valgrind --tool=helgrind --history-level=full ./$(NAME) 4 310 200 200 5
+	valgrind --tool=helgrind --history-level=approx ./$(NAME) 4 310 200 200 5
+
 .PHONY : all clean fclean re
 
 .SILENT: $(NAME) $(OBJ)

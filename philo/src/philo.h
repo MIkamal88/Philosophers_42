@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: m_kamal <m_kamal@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/16 11:32:21 by m_kamal           #+#    #+#             */
-/*   Updated: 2023/07/29 12:51:34 by m_kamal          ###   ########.fr       */
+/*   Created: 2023/10/15 17:22:23 by m_kamal           #+#    #+#             */
+/*   Updated: 2023/10/15 17:22:23 by m_kamal          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@
 # define G_CYAN "\e[0;38;5;44m"
 # define RED "\033[31;1m"
 # define YELLOW "\033[1;33m"
+# define WHITE "\033[1;37m"
 
 typedef enum e_bool
 {
@@ -44,6 +45,7 @@ typedef enum e_bool
 
 typedef struct s_args
 {
+	long	t0;
 	int		philo_n;
 	long	die_t;
 	long	eat_t;
@@ -51,31 +53,38 @@ typedef struct s_args
 	int		meals_n;
 }	t_args;
 
-typedef struct s_fork
+enum e_fork
 {
-	int	left;
-	int	right;
-}	t_fork;
+	RIGHT,
+	LEFT,
+};
 
 typedef struct s_philo
 {
-	int			id;
-	int			meal_count;
-	long		time_to_die;
-	t_fork		fork;
-	pthread_t	thread;
+	int				id;
+	int				meal_count;
+	long			time_to_die;
+	long			last_meal_t;
+	t_bool			sated;
+	t_bool			*finish;
+	t_args			args;
+	pthread_t		thread_id;
+	pthread_mutex_t	*finish_lock;
+	pthread_mutex_t	sated_lock;
+	pthread_mutex_t	last_meal_lock;
+	pthread_mutex_t	*write_lock;
+	pthread_mutex_t	*fork[2];
 }	t_philo;
 
 typedef struct s_table
 {
-	int				n_thread;
-	int				dead_philo;
-	long			t0;
+	t_bool			finish;
 	t_args			*args;
-	t_philo			*philos;
-	pthread_t		maestro;
+	t_philo			**philos;
+	pthread_t		reaper;
+	pthread_mutex_t	finish_lock;
 	pthread_mutex_t	*forks;
-	pthread_mutex_t	write;
+	pthread_mutex_t	write_lock;
 }	t_table;
 
 //	Input check
@@ -95,22 +104,21 @@ long	time_diff(long time);
 void	exec_action(long time);
 
 //  Actions
-t_bool	drop_forks(t_table *table, int i);
-t_bool	eating_philo(t_table *table, int i);
-t_bool	thinking_philo(t_table *table, int i);
-t_bool	sleeping_philo(t_table *table, int i);
-t_bool	dead_philo(t_table *table, int *i);
+t_bool	drop_forks(t_philo *philo);
+t_bool	grab_two_forks(t_philo *philo);
+t_bool	eating_philo(t_philo *philo);
+t_bool	thinking_philo(t_philo *philo);
+t_bool	sleeping_philo(t_philo *philo);
+t_bool	dead_philo(t_table *table);
 
 // Threads
-t_bool	thread_join(t_table *table);
 t_bool	thread_create(t_table *table);
-t_bool	thread_destroy(t_table *table);
+t_bool	table_destroy(t_table *table);
 
 //	Cycle
 void	*cycle(void *args);
-t_bool	cycle_execute(t_table *table, int i);
-void	*checker(void *args);
-t_bool	printing_philo(t_table *table, int ph_id, char *color, char *status);
+void	*reap(void *table_ptr);
+t_bool	printing_philo(t_philo *philo, char *color, char *status);
 
 //	Error handling
 void	exit_err(char *err);
