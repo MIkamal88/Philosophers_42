@@ -61,7 +61,7 @@ leak :			all
 	valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all ./$(NAME) 3 310 200 150 4
 
 helgrind:		all
-	valgrind --tool=helgrind --history-level=approx ./$(NAME) 4 310 200 200 5
+	valgrind --tool=helgrind --history-level=approx ./$(NAME) 5 800 200 200 7
 
 .PHONY : all clean fclean re
 

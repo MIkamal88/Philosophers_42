@@ -48,7 +48,7 @@ void	*reap(void *table_ptr)
 	while (done_eating(table) == FALSE)
 	{
 		if (dead_philo(table) == TRUE)
-			break ;
+			return (NULL);
 		usleep(1000);
 	}
 	return (NULL);
@@ -88,8 +88,6 @@ void	*cycle(void *philo_ptr)
 	t_philo	*philo;
 
 	philo = (t_philo *)philo_ptr;
-	if (philo->id % 2 == 0)
-		usleep(1000);
 	if (philo->args.philo_n == 1)
 	{
 		printing_philo(philo, YELLOW, FORK);

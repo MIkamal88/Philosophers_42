@@ -41,7 +41,7 @@ static t_bool	philo_check(char **argv)
 	int	num_philo;
 
 	num_philo = ft_atoi(argv[1]);
-	if (!num_philo)
+	if (!num_philo || num_philo >= 200)
 		return (FALSE);
 	return (TRUE);
 }

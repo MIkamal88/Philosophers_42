@@ -61,6 +61,7 @@ t_bool	drop_forks(t_philo *philo)
 		return (FALSE);
 	if (pthread_mutex_unlock(philo->fork[RIGHT]))
 		return (FALSE);
+	philo->meal_count++;
 	if (philo->meal_count == philo->args.meals_n)
 	{
 		pthread_mutex_lock(&philo->sated_lock);

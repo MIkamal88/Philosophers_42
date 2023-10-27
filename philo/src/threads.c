@@ -12,6 +12,15 @@
 
 #include "philo.h"
 
+void	better_usleep(long time)
+{
+	long	start;
+
+	start = get_time();
+	while ((get_time() - start) < time)
+		usleep(100);
+}
+
 static t_bool	thread_join(t_table *table)
 {
 	int	i;
@@ -31,9 +40,12 @@ t_bool	thread_create(t_table *table)
 
 	i = -1;
 	while (++i < table->args->philo_n)
+	{
 		if (pthread_create(&table->philos[i]->thread_id,
 				NULL, cycle, table->philos[i]))
 			return (FALSE);
+		usleep(1000);
+	}
 	if (pthread_create(&table->reaper, NULL, reap, table))
 		return (FALSE);
 	if (thread_join(table) == FALSE)

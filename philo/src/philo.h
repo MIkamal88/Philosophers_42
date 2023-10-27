@@ -25,7 +25,7 @@
 # define SLEEP "is sleeping"
 # define THINK "is thinking"
 # define FORK "has taken a fork"
-# define DIED "has died"
+# define DIED "died"
 
 //Colors
 # define RESET "\e[0m"
@@ -101,7 +101,7 @@ t_bool	create_forks(t_table *table);
 //	Time
 long	get_time(void);
 long	time_diff(long time);
-void	exec_action(long time);
+void	better_usleep(long time);
 
 //  Actions
 t_bool	drop_forks(t_philo *philo);

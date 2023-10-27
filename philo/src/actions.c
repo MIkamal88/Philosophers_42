@@ -16,12 +16,11 @@ t_bool	eating_philo(t_philo *philo)
 {
 	if (grab_two_forks(philo) == FALSE)
 		return (FALSE);
+	printing_philo(philo, WHITE, EAT);
 	pthread_mutex_lock(&philo->last_meal_lock);
 	philo->last_meal_t = get_time();
 	pthread_mutex_unlock(&philo->last_meal_lock);
-	printing_philo(philo, WHITE, EAT);
-	philo->meal_count++;
-	usleep(philo->args.eat_t * 1000);
+	better_usleep(philo->args.eat_t);
 	if (drop_forks(philo) == FALSE)
 		return (FALSE);
 	return (TRUE);
@@ -52,7 +51,7 @@ t_bool	sleeping_philo(t_philo *philo)
 		return (FALSE);
 	if (printing_philo(philo, B_BLUE, SLEEP) == FALSE)
 		return (FALSE);
-	usleep(philo->args.sleep_t * 1000);
+	better_usleep(philo->args.sleep_t);
 	return (TRUE);
 }
 
@@ -60,18 +59,14 @@ t_bool	dead_philo(t_table *table)
 {
 	int		i;
 	long	since_last_meal_t;
-	t_bool	sated;
 
 	i = -1;
 	while (++i < table->args->philo_n)
 	{
 		pthread_mutex_lock(&table->philos[i]->last_meal_lock);
-		pthread_mutex_lock(&table->philos[i]->sated_lock);
 		since_last_meal_t = time_diff(table->philos[i]->last_meal_t);
-		sated = table->philos[i]->sated;
-		pthread_mutex_unlock(&table->philos[i]->sated_lock);
 		pthread_mutex_unlock(&table->philos[i]->last_meal_lock);
-		if (!sated && since_last_meal_t >= table->args->die_t)
+		if (since_last_meal_t >= table->args->die_t)
 		{
 			pthread_mutex_lock(&table->finish_lock);
 			table->finish = TRUE;
