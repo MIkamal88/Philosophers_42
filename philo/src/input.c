@@ -67,13 +67,13 @@ t_bool	correct_input(int argc, char **argv)
 
 	bool = FALSE;
 	if (argc != 5 && argc != 6)
-		printf("Invalid number or arguments.\n");
+		exit_err("Invalid number or arguments.\n");
 	if (!check_ifnum(argv))
-		printf("Arguments are not in correct format.\n");
+		exit_err("Arguments are not in correct format.\n");
 	else if (!philo_check(argv))
-		printf("Invalid number of philosphers.\n");
+		exit_err("Invalid number of philosphers.\n");
 	else if (!time_check(argv))
-		printf("Timestamp can't be negative value or null.\n");
+		exit_err("Timestamp can't be negative value or null.\n");
 	else
 		bool = TRUE;
 	return (bool);
